@@ -6,7 +6,7 @@ import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
 public class KafkaProducer {
-	final static String TOPIC = "kafkatopic";
+	private static final String TOPIC = "kafkatopic";
 
 	public static void main(String[] args) throws Exception {
 		Properties properties = new Properties();

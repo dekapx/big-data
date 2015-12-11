@@ -13,6 +13,7 @@ import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 
 public class KafkaConsumer extends Thread {
+
 	private static final String TOPIC = "kafkatopic";
 	private final ConsumerConnector consumerConnector;
 
@@ -37,8 +38,9 @@ public class KafkaConsumer extends Thread {
 		Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumerConnector.createMessageStreams(topicCountMap);
 		KafkaStream<byte[], byte[]> stream = consumerMap.get(TOPIC).get(0);
 		ConsumerIterator<byte[], byte[]> it = stream.iterator();
-		while (it.hasNext())
+		while (it.hasNext()) {
 			System.out.println("Message Received: " + new String(it.next().message()));
+		}
 
 	}
 
