@@ -18,26 +18,25 @@ public class KafkaConsumer extends Thread {
 	private final ConsumerConnector consumerConnector;
 
 	public static void main(String[] argv) throws UnsupportedEncodingException {
-		KafkaConsumer helloKafkaConsumer = new KafkaConsumer();
+		final KafkaConsumer helloKafkaConsumer = new KafkaConsumer();
 		helloKafkaConsumer.start();
-
 	}
 
 	public KafkaConsumer() {
-		Properties properties = new Properties();
+		final Properties properties = new Properties();
 		properties.put("zookeeper.connect", "localhost:2181");
 		properties.put("group.id", "test-group");
-		ConsumerConfig consumerConfig = new ConsumerConfig(properties);
+		final ConsumerConfig consumerConfig = new ConsumerConfig(properties);
 		consumerConnector = Consumer.createJavaConsumerConnector(consumerConfig);
 	}
 
 	@Override
 	public void run() {
-		Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
+		final Map<String, Integer> topicCountMap = new HashMap<String, Integer>();
 		topicCountMap.put(TOPIC, new Integer(1));
-		Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumerConnector.createMessageStreams(topicCountMap);
-		KafkaStream<byte[], byte[]> stream = consumerMap.get(TOPIC).get(0);
-		ConsumerIterator<byte[], byte[]> it = stream.iterator();
+		final Map<String, List<KafkaStream<byte[], byte[]>>> consumerMap = consumerConnector.createMessageStreams(topicCountMap);
+		final KafkaStream<byte[], byte[]> stream = consumerMap.get(TOPIC).get(0);
+		final ConsumerIterator<byte[], byte[]> it = stream.iterator();
 		while (it.hasNext()) {
 			System.out.println("Message Received: " + new String(it.next().message()));
 		}

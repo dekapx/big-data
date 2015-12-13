@@ -14,7 +14,7 @@ $ bin/kafka-server-start.sh config/server.properties
 $ bin\windows\kafka-server-start.bat config\server.properties
 
 # create a topic
-$ kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic kafkatopic
+$ bin/kafka-topics.sh --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic kafkatopic
 $ bin\windows\kafka-topics --create --zookeeper localhost:2181 --replication-factor 1 --partitions 1 --topic kafkatopic
 
 # list the topics
