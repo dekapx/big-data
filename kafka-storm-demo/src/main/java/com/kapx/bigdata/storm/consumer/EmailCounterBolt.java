@@ -1,5 +1,7 @@
 package com.kapx.bigdata.storm.consumer;
 
+import static com.kapx.bigdata.common.util.CommonConstants.FIELD_EMAIL;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,12 +12,11 @@ import backtype.storm.topology.base.BaseBasicBolt;
 import backtype.storm.tuple.Tuple;
 
 @SuppressWarnings("serial")
-public class EmailCounter extends BaseBasicBolt {
+public class EmailCounterBolt extends BaseBasicBolt {
 	private Map<String, Integer> counts;
 
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		// This bolt does not emit any values and therefore does not define any output fields.
 	}
 
 	@Override
@@ -26,7 +27,7 @@ public class EmailCounter extends BaseBasicBolt {
 
 	@Override
 	public void execute(final Tuple tuple, final BasicOutputCollector outputCollector) {
-		final String email = tuple.getStringByField("email");
+		final String email = tuple.getStringByField(FIELD_EMAIL);
 		counts.put(email, countFor(email) + 1);
 		printCounts();
 	}
@@ -36,9 +37,6 @@ public class EmailCounter extends BaseBasicBolt {
 		return count == null ? 0 : count;
 	}
 
-	/**
-	 * Print the counts to System.out so you can easily see what's happening.
-	 */
 	private void printCounts() {
 		for (String email : counts.keySet()) {
 			System.out.println(String.format("%s has count of %s", email, counts.get(email)));

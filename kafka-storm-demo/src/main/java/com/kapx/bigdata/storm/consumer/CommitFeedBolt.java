@@ -1,5 +1,7 @@
 package com.kapx.bigdata.storm.consumer;
 
+import static com.kapx.bigdata.common.util.CommonConstants.FIELD_COMMIT;
+
 import java.util.List;
 
 import backtype.storm.topology.BasicOutputCollector;
@@ -9,7 +11,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 
-public class PrintBolt extends BaseBasicBolt {
+public class CommitFeedBolt extends BaseBasicBolt {
 
 	private static final long serialVersionUID = 1L;
 
@@ -19,8 +21,8 @@ public class PrintBolt extends BaseBasicBolt {
 		outputCollector.emit(new Values(commitMessage));
 	}
 
-	public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
-		outputFieldsDeclarer.declare(new Fields("commit"));
+	public void declareOutputFields(final OutputFieldsDeclarer outputFieldsDeclarer) {
+		outputFieldsDeclarer.declare(new Fields(FIELD_COMMIT));
 	}
 
 }
