@@ -39,15 +39,17 @@ public class KafkaTopology {
 
 	private static KafkaSpout configureKafkaSpout() {
 		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
+
 		final SpoutConfig spoutConf = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
 		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-		final KafkaSpout kafkaSpout = new KafkaSpout(spoutConf);
-		return kafkaSpout;
+
+		return new KafkaSpout(spoutConf);
 	}
 
 	private static LocalCluster deployTopologyToLocalCluster(final TopologyBuilder builder) {
 		final Config config = new Config();
 		config.setDebug(true);
+
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(TOPOLOGY_NAME, config, builder.createTopology());
 		return cluster;

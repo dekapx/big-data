@@ -1,5 +1,6 @@
 package com.kapx.bigdata.kafka.producer;
 
+import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
@@ -20,12 +21,16 @@ public class KafkaProducer {
 		final ProducerConfig config = new ProducerConfig(props);
 
 		final Producer<String, String> producer = new Producer<String, String>(config);
-		final List<String> commits = IOUtils.readLines(ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE), Charset.defaultCharset().name());
+		final List<String> commits = getCommitsFromFile();
 		for (String commit : commits) {
 			producer.send(new KeyedMessage<String, String>(KAFKA_TOPIC, commit));
 			TimeUnit.SECONDS.sleep(1);
 		}
 		producer.close();
+	}
+
+	private static List<String> getCommitsFromFile() throws IOException {
+		return IOUtils.readLines(ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE), Charset.defaultCharset().name());
 	}
 
 	private static Properties defineBrokerProperties() {
