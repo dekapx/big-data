@@ -28,21 +28,29 @@ public class KafkaTopology {
 	private static final String EMAIL_COUNTER_BOLT = "email-counter-bolt";
 
 	public static void main(String args[]) {
-		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
-		final SpoutConfig spoutConf = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
-		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-		final KafkaSpout kafkaSpout = new KafkaSpout(spoutConf);
-
+		final KafkaSpout kafkaSpout = configureKafkaSpout();
 		final TopologyBuilder builder = buildTopology(kafkaSpout);
-
-		final Config config = new Config();
-		config.setDebug(true);
-		final LocalCluster cluster = new LocalCluster();
-		cluster.submitTopology(TOPOLOGY_NAME, config, builder.createTopology());
+		final LocalCluster cluster = deployTopologyToLocalCluster(builder);
 
 		Utils.sleep(ONE_MINUTE);
 		cluster.killTopology(TOPOLOGY_NAME);
 		cluster.shutdown();
+	}
+
+	private static KafkaSpout configureKafkaSpout() {
+		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
+		final SpoutConfig spoutConf = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
+		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
+		final KafkaSpout kafkaSpout = new KafkaSpout(spoutConf);
+		return kafkaSpout;
+	}
+
+	private static LocalCluster deployTopologyToLocalCluster(final TopologyBuilder builder) {
+		final Config config = new Config();
+		config.setDebug(true);
+		final LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology(TOPOLOGY_NAME, config, builder.createTopology());
+		return cluster;
 	}
 
 	private static TopologyBuilder buildTopology(final KafkaSpout kafkaSpout) {
