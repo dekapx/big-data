@@ -29,7 +29,8 @@ public class KafkaTopology {
 
 	public static void main(String args[]) {
 		final KafkaSpout kafkaSpout = configureKafkaSpout();
-		final TopologyBuilder builder = buildTopology(kafkaSpout);
+		final TopologyBuilder builder = new TopologyBuilder();
+		buildTopology(builder, kafkaSpout);
 		final LocalCluster cluster = deployTopologyToLocalCluster(builder);
 
 		Utils.sleep(ONE_MINUTE);
@@ -39,10 +40,8 @@ public class KafkaTopology {
 
 	private static KafkaSpout configureKafkaSpout() {
 		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
-
 		final SpoutConfig spoutConf = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
 		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-
 		return new KafkaSpout(spoutConf);
 	}
 
@@ -55,13 +54,27 @@ public class KafkaTopology {
 		return cluster;
 	}
 
-	private static TopologyBuilder buildTopology(final KafkaSpout kafkaSpout) {
-		final TopologyBuilder builder = new TopologyBuilder();
-		builder.setSpout(KAFKA_SPOUT, kafkaSpout, 1);
-		builder.setBolt(COMMIT_FEED_BOLT, new CommitFeedBolt()).shuffleGrouping(KAFKA_SPOUT);
-		builder.setBolt(EMAIL_EXTRACTOR_BOLT, new EmailExtractorBolt()).shuffleGrouping(COMMIT_FEED_BOLT);
+	private static void buildTopology(final TopologyBuilder builder, final KafkaSpout kafkaSpout) {
+		buildKafkaSpout(kafkaSpout, builder);
+		buildCommitFeedBolt(builder);
+		buildEmailExtractorBolt(builder);
+		buildEmailCounterBolt(builder);
+	}
+
+	private static void buildEmailCounterBolt(final TopologyBuilder builder) {
 		builder.setBolt(EMAIL_COUNTER_BOLT, new EmailCounterBolt()).fieldsGrouping(EMAIL_EXTRACTOR_BOLT, new Fields(FIELD_EMAIL));
-		return builder;
+	}
+
+	private static void buildEmailExtractorBolt(final TopologyBuilder builder) {
+		builder.setBolt(EMAIL_EXTRACTOR_BOLT, new EmailExtractorBolt()).shuffleGrouping(COMMIT_FEED_BOLT);
+	}
+
+	private static void buildCommitFeedBolt(final TopologyBuilder builder) {
+		builder.setBolt(COMMIT_FEED_BOLT, new CommitFeedBolt()).shuffleGrouping(KAFKA_SPOUT);
+	}
+
+	private static void buildKafkaSpout(final KafkaSpout kafkaSpout, final TopologyBuilder builder) {
+		builder.setSpout(KAFKA_SPOUT, kafkaSpout, 1);
 	}
 
 }

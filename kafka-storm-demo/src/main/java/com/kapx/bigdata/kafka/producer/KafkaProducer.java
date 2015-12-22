@@ -17,11 +17,16 @@ public class KafkaProducer {
 	private static final String CHANGE_LOG_FILE = "changelog.txt";
 
 	public static void main(String args[]) throws Exception {
+		final KafkaProducer kafkaProducer = new KafkaProducer();
+		kafkaProducer.publishMessages();
+	}
+
+	public void publishMessages() throws Exception {
 		final Properties props = defineBrokerProperties();
 		final ProducerConfig config = new ProducerConfig(props);
 
 		final Producer<String, String> producer = new Producer<String, String>(config);
-		final List<String> commits = getCommitsFromFile();
+		final List<String> commits = readCommitsFromFile();
 		for (String commit : commits) {
 			producer.send(new KeyedMessage<String, String>(KAFKA_TOPIC, commit));
 			TimeUnit.SECONDS.sleep(1);
@@ -29,11 +34,11 @@ public class KafkaProducer {
 		producer.close();
 	}
 
-	private static List<String> getCommitsFromFile() throws IOException {
+	private List<String> readCommitsFromFile() throws IOException {
 		return IOUtils.readLines(ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE), Charset.defaultCharset().name());
 	}
 
-	private static Properties defineBrokerProperties() {
+	private Properties defineBrokerProperties() {
 		final Properties props = new Properties();
 		props.put("metadata.broker.list", "localhost:9092");
 		props.put("serializer.class", "kafka.serializer.StringEncoder");
