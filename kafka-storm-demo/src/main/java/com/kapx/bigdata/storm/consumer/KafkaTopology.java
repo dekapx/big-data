@@ -15,7 +15,8 @@ import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
 
 public class KafkaTopology {
-	private static final int ONE_MINUTE = 60000;
+	private static final int SLEEP_TIME = 60000;
+
 	private static final String BROKER_HOST_URL = "localhost:2181";
 	private static final String KAFKA_TOPIC = "test-topic";
 	private static final String APPLICATION_ROOT = "/kafka-storm-demo";
@@ -28,21 +29,20 @@ public class KafkaTopology {
 	private static final String EMAIL_COUNTER_BOLT = "email-counter-bolt";
 
 	public static void main(String args[]) {
-		final KafkaSpout kafkaSpout = configureKafkaSpout();
 		final TopologyBuilder builder = new TopologyBuilder();
-		buildTopology(builder, kafkaSpout);
+		buildTopology(builder);
 		final LocalCluster cluster = deployTopologyToLocalCluster(builder);
 
-		Utils.sleep(ONE_MINUTE);
+		Utils.sleep(SLEEP_TIME);
 		cluster.killTopology(TOPOLOGY_NAME);
 		cluster.shutdown();
 	}
 
-	private static KafkaSpout configureKafkaSpout() {
-		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
-		final SpoutConfig spoutConf = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
-		spoutConf.scheme = new SchemeAsMultiScheme(new StringScheme());
-		return new KafkaSpout(spoutConf);
+	private static void buildTopology(final TopologyBuilder builder) {
+		buildKafkaSpout(builder);
+		buildCommitFeedBolt(builder);
+		buildEmailExtractorBolt(builder);
+		buildEmailCounterBolt(builder);
 	}
 
 	private static LocalCluster deployTopologyToLocalCluster(final TopologyBuilder builder) {
@@ -54,27 +54,25 @@ public class KafkaTopology {
 		return cluster;
 	}
 
-	private static void buildTopology(final TopologyBuilder builder, final KafkaSpout kafkaSpout) {
-		buildKafkaSpout(kafkaSpout, builder);
-		buildCommitFeedBolt(builder);
-		buildEmailExtractorBolt(builder);
-		buildEmailCounterBolt(builder);
-	}
+	private static void buildKafkaSpout(final TopologyBuilder builder) {
+		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
+		final SpoutConfig spoutConfig = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
+		spoutConfig.scheme = new SchemeAsMultiScheme(new StringScheme());
 
-	private static void buildEmailCounterBolt(final TopologyBuilder builder) {
-		builder.setBolt(EMAIL_COUNTER_BOLT, new EmailCounterBolt()).fieldsGrouping(EMAIL_EXTRACTOR_BOLT, new Fields(FIELD_EMAIL));
-	}
-
-	private static void buildEmailExtractorBolt(final TopologyBuilder builder) {
-		builder.setBolt(EMAIL_EXTRACTOR_BOLT, new EmailExtractorBolt()).shuffleGrouping(COMMIT_FEED_BOLT);
+		final KafkaSpout kafkaSpout = new KafkaSpout(spoutConfig);
+		builder.setSpout(KAFKA_SPOUT, kafkaSpout, 1);
 	}
 
 	private static void buildCommitFeedBolt(final TopologyBuilder builder) {
 		builder.setBolt(COMMIT_FEED_BOLT, new CommitFeedBolt()).shuffleGrouping(KAFKA_SPOUT);
 	}
 
-	private static void buildKafkaSpout(final KafkaSpout kafkaSpout, final TopologyBuilder builder) {
-		builder.setSpout(KAFKA_SPOUT, kafkaSpout, 1);
+	private static void buildEmailExtractorBolt(final TopologyBuilder builder) {
+		builder.setBolt(EMAIL_EXTRACTOR_BOLT, new EmailExtractorBolt()).shuffleGrouping(COMMIT_FEED_BOLT);
+	}
+
+	private static void buildEmailCounterBolt(final TopologyBuilder builder) {
+		builder.setBolt(EMAIL_COUNTER_BOLT, new EmailCounterBolt()).fieldsGrouping(EMAIL_EXTRACTOR_BOLT, new Fields(FIELD_EMAIL));
 	}
 
 }

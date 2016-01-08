@@ -34,10 +34,6 @@ public class KafkaProducer {
 		producer.close();
 	}
 
-	private List<String> readCommitsFromFile() throws IOException {
-		return IOUtils.readLines(ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE), Charset.defaultCharset().name());
-	}
-
 	private Properties defineBrokerProperties() {
 		final Properties props = new Properties();
 		props.put("metadata.broker.list", "localhost:9092");
@@ -46,4 +42,9 @@ public class KafkaProducer {
 		props.put("request.required.acks", "1");
 		return props;
 	}
+
+	private List<String> readCommitsFromFile() throws IOException {
+		return IOUtils.readLines(ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE), Charset.defaultCharset().name());
+	}
+
 }
