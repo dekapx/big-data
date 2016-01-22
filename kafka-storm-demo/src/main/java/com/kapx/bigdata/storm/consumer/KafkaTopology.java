@@ -15,7 +15,7 @@ import storm.kafka.StringScheme;
 import storm.kafka.ZkHosts;
 
 public class KafkaTopology {
-	private static final int SLEEP_TIME = 60000;
+	private static final int SLEEP_TIME = 60000; // one minute
 
 	private static final String BROKER_HOST_URL = "localhost:2181";
 	private static final String KAFKA_TOPIC = "test-topic";

@@ -1,6 +1,7 @@
 package com.kapx.bigdata.kafka.producer;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Properties;
@@ -29,6 +30,7 @@ public class KafkaProducer {
 		final List<String> commits = readCommitsFromFile();
 		for (String commit : commits) {
 			producer.send(new KeyedMessage<String, String>(KAFKA_TOPIC, commit));
+			// one second delay between messages
 			TimeUnit.SECONDS.sleep(1);
 		}
 		producer.close();
@@ -44,7 +46,8 @@ public class KafkaProducer {
 	}
 
 	private List<String> readCommitsFromFile() throws IOException {
-		return IOUtils.readLines(ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE), Charset.defaultCharset().name());
+		final InputStream inputStream = ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE);
+		return IOUtils.readLines(inputStream, Charset.defaultCharset().name());
 	}
 
 }
