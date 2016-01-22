@@ -45,15 +45,6 @@ public class KafkaTopology {
 		buildEmailCounterBolt(builder);
 	}
 
-	private static LocalCluster deployTopologyToLocalCluster(final TopologyBuilder builder) {
-		final Config config = new Config();
-		config.setDebug(true);
-
-		final LocalCluster cluster = new LocalCluster();
-		cluster.submitTopology(TOPOLOGY_NAME, config, builder.createTopology());
-		return cluster;
-	}
-
 	private static void buildKafkaSpout(final TopologyBuilder builder) {
 		final BrokerHosts brokerHosts = new ZkHosts(BROKER_HOST_URL);
 		final SpoutConfig spoutConfig = new SpoutConfig(brokerHosts, KAFKA_TOPIC, APPLICATION_ROOT, ID);
@@ -73,6 +64,15 @@ public class KafkaTopology {
 
 	private static void buildEmailCounterBolt(final TopologyBuilder builder) {
 		builder.setBolt(EMAIL_COUNTER_BOLT, new EmailCounterBolt()).fieldsGrouping(EMAIL_EXTRACTOR_BOLT, new Fields(FIELD_EMAIL));
+	}
+
+	private static LocalCluster deployTopologyToLocalCluster(final TopologyBuilder builder) {
+		final Config config = new Config();
+		config.setDebug(true);
+
+		final LocalCluster cluster = new LocalCluster();
+		cluster.submitTopology(TOPOLOGY_NAME, config, builder.createTopology());
+		return cluster;
 	}
 
 }

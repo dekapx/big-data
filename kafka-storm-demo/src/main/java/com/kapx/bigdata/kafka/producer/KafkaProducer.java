@@ -15,7 +15,7 @@ import kafka.producer.ProducerConfig;
 
 public class KafkaProducer {
 	private static final String KAFKA_TOPIC = "test-topic";
-	private static final String CHANGE_LOG_FILE = "changelog.txt";
+	private static final String LOG_FILE = "changelog.txt";
 
 	public static void main(String args[]) throws Exception {
 		final KafkaProducer kafkaProducer = new KafkaProducer();
@@ -26,7 +26,7 @@ public class KafkaProducer {
 		final Properties props = defineBrokerProperties();
 		final ProducerConfig config = new ProducerConfig(props);
 
-		final Producer<String, String> producer = new Producer<String, String>(config);
+		final Producer<String, String> producer = new Producer<>(config);
 		final List<String> commits = readCommitsFromFile();
 		for (String commit : commits) {
 			producer.send(new KeyedMessage<String, String>(KAFKA_TOPIC, commit));
@@ -46,7 +46,7 @@ public class KafkaProducer {
 	}
 
 	private List<String> readCommitsFromFile() throws IOException {
-		final InputStream inputStream = ClassLoader.getSystemResourceAsStream(CHANGE_LOG_FILE);
+		final InputStream inputStream = ClassLoader.getSystemResourceAsStream(LOG_FILE);
 		return IOUtils.readLines(inputStream, Charset.defaultCharset().name());
 	}
 
