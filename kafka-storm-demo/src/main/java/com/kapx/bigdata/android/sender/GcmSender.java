@@ -15,11 +15,11 @@ public class GcmSender implements Serializable {
 
 	public static final String API_KEY = "AIzaSyDlpBY9a6IasnaSKrAkJFox9bodZ90v_4M";
 
-	public void sendMessage(final String message) {
+	public void sendMessage(final String title, final String message) {
 		try {
-			// Prepare JSON containing the GCM message content. What to send and where to send.
 			final JSONObject jGcmData = new JSONObject();
 			final JSONObject jData = new JSONObject();
+			jData.put("title", title);
 			jData.put("message", message);
 			jGcmData.put("to", "/topics/global");
 			// What to send in GCM message.

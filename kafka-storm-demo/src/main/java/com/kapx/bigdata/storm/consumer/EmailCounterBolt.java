@@ -43,14 +43,10 @@ public class EmailCounterBolt extends BaseBasicBolt {
 
 	private void printCounts() {
 		for (String email : counts.keySet()) {
+			final String title = "Dimension Data";
 			final String message = String.format("%s has total of %s commits.", email, counts.get(email));
-			gcmSender.sendMessage(message);
-			System.out.println(toJsonMessage(message));
+			gcmSender.sendMessage(title, message);
+			System.out.println(title + "\n" + message);
 		}
-	}
-
-	private String toJsonMessage(final String message) {
-		final String msgTemplate = "{\"data\":{\"title\":\"GitHub Info.\",\"message\":\"%s\"},}";
-		return String.format(msgTemplate, message);
 	}
 }
