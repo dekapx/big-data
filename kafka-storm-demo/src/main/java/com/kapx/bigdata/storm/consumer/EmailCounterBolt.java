@@ -5,6 +5,8 @@ import static com.kapx.bigdata.common.util.CommonConstants.FIELD_EMAIL;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.kapx.bigdata.android.sender.GcmSender;
+
 import backtype.storm.task.TopologyContext;
 import backtype.storm.topology.BasicOutputCollector;
 import backtype.storm.topology.OutputFieldsDeclarer;
@@ -15,6 +17,8 @@ import backtype.storm.tuple.Tuple;
 public class EmailCounterBolt extends BaseBasicBolt {
 	private Map<String, Integer> counts;
 
+	private GcmSender gcmSender = new GcmSender();
+
 	@Override
 	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 	}
@@ -22,7 +26,7 @@ public class EmailCounterBolt extends BaseBasicBolt {
 	@Override
 	@SuppressWarnings("rawtypes")
 	public void prepare(final Map stormConf, final TopologyContext context) {
-		counts = new HashMap<String, Integer>();
+		counts = new HashMap<>();
 	}
 
 	@Override
@@ -39,7 +43,14 @@ public class EmailCounterBolt extends BaseBasicBolt {
 
 	private void printCounts() {
 		for (String email : counts.keySet()) {
-			System.out.println(String.format("%s has count of %s", email, counts.get(email)));
+			final String message = String.format("%s has total of %s commits.", email, counts.get(email));
+			gcmSender.sendMessage(message);
+			System.out.println(toJsonMessage(message));
 		}
+	}
+
+	private String toJsonMessage(final String message) {
+		final String msgTemplate = "{\"data\":{\"title\":\"GitHub Info.\",\"message\":\"%s\"},}";
+		return String.format(msgTemplate, message);
 	}
 }

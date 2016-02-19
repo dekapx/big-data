@@ -21,3 +21,6 @@ bin\windows\kafka-topics --list --zookeeper localhost:2181
 bin/kafka-console-producer.sh --broker-list localhost:9092 --topic kafkatopic
 bin\windows\kafka-console-producer.sh --broker-list localhost:9092 --topic kafkatopic
 
+------------------------------------------------------------------------------------------
+http://hmkcode.com/android-google-cloud-messaging-tutorial/
+

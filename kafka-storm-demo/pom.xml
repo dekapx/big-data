@@ -11,11 +11,12 @@
 		<storm-core.version>0.9.2-incubating</storm-core.version>
 		<storm-kafka.version>0.9.2-incubating</storm-kafka.version>
 		<commons-io.version>2.4</commons-io.version>
+		<json.version>20160212</json.version>
 
 		<java.version>1.8</java.version>
 		<maven-compiler-plugin.version>3.2</maven-compiler-plugin.version>
 	</properties>
-	
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.kafka</groupId>
@@ -47,6 +48,12 @@
 			<artifactId>commons-io</artifactId>
 			<version>${commons-io.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.json</groupId>
+			<artifactId>json</artifactId>
+			<version>${json.version}</version>
+		</dependency>
+
 	</dependencies>
 	<build>
 		<plugins>
